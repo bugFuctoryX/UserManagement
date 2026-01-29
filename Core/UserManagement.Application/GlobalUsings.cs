@@ -1,0 +1,9 @@
+﻿global using UserManagement.Domain.Entities;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using FluentValidation;
+global using MediatR;
+global using UserManagement.Application.Common;
+global using UserManagement.Application.Features.Authentication.Login;
+global using UserManagement.Application.Abstractions.Authentication;
+global using UserManagement.Application.Mapping;
