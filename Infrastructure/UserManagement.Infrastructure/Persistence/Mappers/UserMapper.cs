@@ -16,6 +16,7 @@ public static class UserMapper
       Profile = new UserProfile
       {
         UserId = profile.UserId,
+        Email = profile.Email,
         LastName = profile.LastName,
         FirstName = profile.FirstName,
         BirthDate = profile.BirthDate,
@@ -27,6 +28,7 @@ public static class UserMapper
 
   public static UserProfileRecord ToProfileRecord(this UserProfile p) => new UserProfileRecord(
       p.UserId,
+      p.Email,
       p.LastName,
       p.FirstName,
       p.BirthDate,
@@ -39,6 +41,7 @@ public static class UserMapper
     {
       user.Id,
       Credential = new { user.Credential.UserId, user.Credential.UserName, user.Credential.PasswordHash },
-      Profile = new { user.Profile.UserId, user.Profile.LastName, user.Profile.FirstName, user.Profile.BirthDate, user.Profile.BirthPlace, user.Profile.City }
+      Profile = new { user.Profile.UserId, user.Profile.Email, user.Profile.LastName, 
+        user.Profile.FirstName, user.Profile.BirthDate, user.Profile.BirthPlace, user.Profile.City }
     });
 }

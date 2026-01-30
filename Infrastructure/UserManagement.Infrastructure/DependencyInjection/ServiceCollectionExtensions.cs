@@ -1,4 +1,6 @@
-﻿namespace UserManagement.Infrastructure.DependencyInjection;
+﻿using UserManagement.Infrastructure.SeedGenerators;
+
+namespace UserManagement.Infrastructure.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
@@ -27,17 +29,17 @@ public static class ServiceCollectionExtensions
       o.UserAuditPath = MakeAbs(o.UserAuditPath);
     });
 
-    services.AddSingleton(sp => new CredentialsCsvSerializer(sp.GetRequiredService<FileDbOptions>().Delimiter));
-    services.AddSingleton(sp => new UsersCsvSerializer(sp.GetRequiredService<FileDbOptions>().Delimiter));
-    services.AddSingleton(sp => new AuditCsvSerializer(sp.GetRequiredService<FileDbOptions>().Delimiter));
+    services.AddSingleton(sp => new CredentialsCsvSerializer(sp.GetRequiredService<IOptions<FileDbOptions>>().Value.Delimiter));
+    services.AddSingleton(sp => new UsersCsvSerializer(sp.GetRequiredService<IOptions<FileDbOptions>>().Value.Delimiter));
+    services.AddSingleton(sp => new AuditCsvSerializer(sp.GetRequiredService<IOptions<FileDbOptions>>().Value.Delimiter));
     services.AddSingleton<IPasswordHasher, PasswordHasher>();
-    services.AddScoped<IAuthenticationService, FileAuthenticationService>();
-
     services.AddSingleton<IFileDbContext, FileDbContext>();
+    services.AddScoped<IAuthenticationService, FileAuthenticationService>();
     services.AddScoped<IFileUserRepository, FileUserRepository>();
     services.AddScoped<IFileAuditWriter, FileAuditWriter>();
     services.AddScoped<IFileCredentialRepository, FileCredentialRepository>();
-
+    services.AddScoped<ISeedGenerator, SeedGenerator>();
+    services.AddHostedService<SeedDataHostedService>();
     return services;
   }
 }

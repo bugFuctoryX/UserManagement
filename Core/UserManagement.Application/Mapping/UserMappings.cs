@@ -6,6 +6,7 @@ public static class UserMappings
     UserId: user.Id,
     UserName: user.Credential.UserName,
     FirstName: user.Profile.FirstName,
-    LastName: user.Profile.LastName
+    LastName: user.Profile.LastName,
+    Email: user.Profile.Email
    );
 }

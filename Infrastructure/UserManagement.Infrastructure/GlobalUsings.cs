@@ -18,3 +18,4 @@ global using System.Security.Cryptography;
 global using UserManagement.Application.Abstractions.Authentication;
 global using UserManagement.Infrastructure.Authentication.Passwords;
 global using UserManagement.Infrastructure.Authentication;
+global using Microsoft.Extensions.Hosting;

@@ -3,7 +3,7 @@
 internal class CredentialsCsvSerializer: ICsvSerializer<CredentialRecord>
 {
   private readonly string _delimiter;
-  public CredentialsCsvSerializer(string delimiter = ";") => _delimiter = delimiter;
+  public CredentialsCsvSerializer(string delimiter) => _delimiter = delimiter;
 
   public IReadOnlyList<CredentialRecord> Deserialize(string content)
   {

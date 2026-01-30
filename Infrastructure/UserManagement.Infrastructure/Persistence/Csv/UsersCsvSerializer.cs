@@ -3,7 +3,7 @@
 internal class UsersCsvSerializer : ICsvSerializer<UserProfileRecord>
 {
   private readonly string _delimiter;
-  public UsersCsvSerializer(string delimiter = ";") => _delimiter = delimiter;
+  public UsersCsvSerializer(string delimiter) => _delimiter = delimiter;
 
   public IReadOnlyList<UserProfileRecord> Deserialize(string content)
   {
@@ -22,9 +22,10 @@ internal class UsersCsvSerializer : ICsvSerializer<UserProfileRecord>
           Guid.Parse(CsvHelpers.NormalizeCell(p[0])),
           CsvHelpers.NormalizeCell(p[1]),
           CsvHelpers.NormalizeCell(p[2]),
-          DateOnly.Parse(CsvHelpers.NormalizeCell(p[3]), CsvHelpers.Invariant),
-          CsvHelpers.NormalizeCell(p[4]),
-          CsvHelpers.NormalizeCell(p[5])
+          CsvHelpers.NormalizeCell(p[3]),
+          DateOnly.Parse(CsvHelpers.NormalizeCell(p[4]), CsvHelpers.Invariant),
+          CsvHelpers.NormalizeCell(p[5]),
+          CsvHelpers.NormalizeCell(p[6])
       ));
     }
     return list;
@@ -33,14 +34,14 @@ internal class UsersCsvSerializer : ICsvSerializer<UserProfileRecord>
   public string Serialize(IEnumerable<UserProfileRecord> items)
   {
     var sb = new System.Text.StringBuilder();
-    sb.AppendLine("UserId;LastName;FirstName;BirthDate;BirthPlace;City");
+    sb.AppendLine("UserId;Email;LastName;FirstName;BirthDate;BirthPlace;City");
     foreach (var x in items)
       sb.Append(SerializeLine(x));
     return sb.ToString();
   }
 
-  public string SerializeHeaderOnly() => "UserId;LastName;FirstName;BirthDate;BirthPlace;City\n";
+  public string SerializeHeaderOnly() => "UserId;Email;LastName;FirstName;BirthDate;BirthPlace;City\n";
 
   public string SerializeLine(UserProfileRecord item)
-      => $"{item.UserId};{item.LastName};{item.FirstName};{item.BirthDate:yyyy-MM-dd};{item.BirthPlace};{item.City}\n";
+      => $"{item.UserId};{item.Email};{item.LastName};{item.FirstName};{item.BirthDate:yyyy-MM-dd};{item.BirthPlace};{item.City}\n";
 }

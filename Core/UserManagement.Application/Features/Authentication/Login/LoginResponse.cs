@@ -2,6 +2,7 @@
 
 public sealed record LoginResponse(
   Guid UserId,
+  string Email,
   string UserName,
   string FirstName,
   string LastName
