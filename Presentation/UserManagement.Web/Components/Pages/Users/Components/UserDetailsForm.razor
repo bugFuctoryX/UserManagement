@@ -1,0 +1,88 @@
+﻿@using UserManagement.Web.Models
+
+<div style="max-width:520px;">
+    <div style="display:grid; grid-template-columns: 1fr; gap:12px;">
+
+        <div>
+            <label>Username</label>
+            <TelerikTextBox @bind-Value="Model.UserName" />
+        </div>
+
+        <div>
+            <label>Email</label>
+            <TelerikTextBox @bind-Value="Model.Email" />
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div>
+                <label>First name</label>
+                <TelerikTextBox @bind-Value="Model.FirstName" />
+            </div>
+
+            <div>
+                <label>Last name</label>
+                <TelerikTextBox @bind-Value="Model.LastName" />
+            </div>
+        </div>
+
+        <div>
+            <label>Full name</label>
+            <TelerikTextBox Value="@FullName" ReadOnly="true" />
+        </div>
+
+        <div>
+            <label>Birth date</label>
+            <TelerikDatePicker Value="BirthDate"
+                               ValueChanged="BirthDateChanged"
+                               ValueExpression="@(() => BirthDate)" />
+        </div>
+
+        <div>
+            <label>Birth place</label>
+            <TelerikTextBox @bind-Value="Model.BirthPlace" />
+        </div>
+
+        <div>
+            <label>City</label>
+            <TelerikTextBox @bind-Value="Model.City" />
+        </div>
+
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px;">
+            <TelerikButton ThemeColor="ThemeColor.Light" OnClick="OnBack">
+                Back
+            </TelerikButton>
+
+            <TelerikButton ThemeColor="ThemeColor.Success"
+                           OnClick="OnSave"
+                           Enabled="@(!IsSaving)">
+                @(IsSaving ? "Saving..." : "Update")
+            </TelerikButton>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(SaveMessage))
+        {
+            <div style="color: green;">@SaveMessage</div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(SaveError))
+        {
+            <div style="color:#c00">@SaveError</div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public UpdateUserModel Model { get; set; } = default!;
+
+    [Parameter] public DateTime BirthDate { get; set; }
+    [Parameter] public EventCallback<DateTime> BirthDateChanged { get; set; }
+
+    [Parameter] public string FullName { get; set; } = string.Empty;
+
+    [Parameter] public bool IsSaving { get; set; }
+    [Parameter] public string? SaveMessage { get; set; }
+    [Parameter] public string? SaveError { get; set; } 
+
+    [Parameter, EditorRequired] public EventCallback OnBack { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnSave { get; set; }
+}

@@ -8,3 +8,4 @@ global using UserManagement.Web.Models;
 global using UserManagement.Application.Features.Authentication.Login;
 global using UserManagement.Application.Features.Users.Commands.Update;
 global using UserManagement.Application.Features.Users.Queries.GetById;
+global using UserManagement.Application.Features.Users.Queries.ExportUsersXml;

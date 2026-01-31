@@ -1,4 +1,7 @@
-﻿using UserManagement.Application.Features.Users.Commands.Update;
+﻿using System.Globalization;
+using UserManagement.Application.Features.Users.Commands.Update;
+using UserManagement.Application.Features.Users.Queries.ExportUsersXml;
+using UserManagement.Application.Features.Users.Queries.ExportUsersXml.Xml;
 using UserManagement.Application.Features.Users.Queries.GetById;
 
 namespace UserManagement.Application.Mapping;

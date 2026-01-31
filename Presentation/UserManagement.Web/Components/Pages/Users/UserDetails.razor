@@ -1,10 +1,14 @@
 ﻿@page "/users/{UserId:guid}"
+@using UserManagement.Application.Features.Users.Queries.GetById
+@using UserManagement.Application.Features.Users.Commands.Update
+@using UserManagement.Web.Models
+@using UserManagement.Web.Mapper
 
-<h3>Felhasználó adatai</h3>
+<h3>User details</h3>
 
 @if (isLoading)
 {
-    <p>Betöltés...</p>
+    <p>Loading...</p>
 }
 else if (!string.IsNullOrWhiteSpace(errorMessage))
 {
@@ -12,87 +16,29 @@ else if (!string.IsNullOrWhiteSpace(errorMessage))
 }
 else if (model is not null)
 {
-    <div style="max-width:520px;">
-        <div style="display:grid; grid-template-columns: 1fr; gap:12px;">
-
-            <div>
-                <label>Felhasználónév</label>
-                <TelerikTextBox @bind-Value="model.UserName" />
-            </div>
-
-            <div>
-                <label>Email</label>
-                <TelerikTextBox @bind-Value="model.Email" />
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                <div>
-                    <label>Keresztnév</label>
-                    <TelerikTextBox @bind-Value="model.FirstName" />
-                </div>
-
-                <div>
-                    <label>Vezetéknév</label>
-                    <TelerikTextBox @bind-Value="model.LastName" />
-                </div>
-            </div>
-
-            <div>
-                <label>Teljes név</label>
-                <TelerikTextBox Value="@FullName" ReadOnly="true" />
-            </div>
-
-            <div>
-                <label>Születési dátum</label>
-                <TelerikDatePicker @bind-Value="birthDate" />
-            </div>
-
-            <div>
-                <label>Születési hely</label>
-                <TelerikTextBox @bind-Value="model.BirthPlace" />
-            </div>
-
-            <div>
-                <label>Város</label>
-                <TelerikTextBox @bind-Value="model.City" />
-            </div>
-
-            <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px;">
-                <TelerikButton ThemeColor="ThemeColor.Light" OnClick="@GoBack">
-                    Vissza
-                </TelerikButton>
-
-                <TelerikButton ThemeColor="ThemeColor.Success" OnClick="@UpdateAsync" Enabled="@(!isSaving)">
-                    @(isSaving ? "Mentés..." : "Update")
-                </TelerikButton>
-            </div>
-
-            @if (!string.IsNullOrWhiteSpace(saveMessage))
-            {
-                <div style="color: green;">@saveMessage</div>
-            }
-
-            @if (!string.IsNullOrWhiteSpace(saveError))
-            {
-                <div style="color:#c00">@saveError</div>
-            }
-        </div>
-    </div>
+    <UserDetailsForm Model="model"
+                     BirthDate="birthDate"
+                     BirthDateChanged="OnBirthDateChanged"
+                     FullName="@FullName"
+                     IsSaving="isSaving"
+                     SaveMessage="@SaveMessage"
+                     SaveError="@SaveError"
+                     OnBack="GoBack"
+                     OnSave="UpdateAsync" />
 }
 
 @code {
     [Parameter] public Guid UserId { get; set; }
 
     private UpdateUserModel? model;
-
     private DateTime birthDate;
 
     private bool isLoading = true;
-    private bool isSaving = false;
+    private bool isSaving;
 
     private string? errorMessage;
-    private string? saveError;
-    private string? saveMessage;
+    private string? SaveError { get; set; }
+    private string? SaveMessage { get; set; }
 
     [Inject] private IMediator Mediator { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
@@ -100,16 +46,14 @@ else if (model is not null)
     private string FullName => model is null ? string.Empty : $"{model.FirstName} {model.LastName}";
 
     protected override async Task OnInitializedAsync()
-    {
-        await LoadAsync();
-    }
+        => await LoadAsync();
 
     private async Task LoadAsync()
     {
         isLoading = true;
         errorMessage = null;
-        saveError = null;
-        saveMessage = null;
+        SaveError = null;
+        SaveMessage = null;
 
         try
         {
@@ -122,7 +66,7 @@ else if (model is not null)
             }
             else
             {
-                errorMessage = result.Error?.Message ?? "Felhasználó nem található.";
+                errorMessage = result.Error?.Message ?? "User not found.";
             }
         }
         catch (Exception ex)
@@ -135,31 +79,40 @@ else if (model is not null)
         }
     }
 
+    private Task OnBirthDateChanged(DateTime value)
+    {
+        birthDate = value;
+        return Task.CompletedTask;
+    }
+
     private async Task UpdateAsync()
     {
         if (model is null) return;
 
         isSaving = true;
-        saveError = null;
-        saveMessage = null;
+        SaveError = null;
+        SaveMessage = null;
 
         var birthDateOnly = DateOnly.FromDateTime(birthDate);
-
         var cmd = model.ToUpdateUserCommand(birthDateOnly);
 
         var result = await Mediator.Send(cmd);
 
         if (result.IsSuccess)
         {
-            saveMessage = "Saved successfully.";
+            SaveMessage = "Saved successfully.";
         }
         else
         {
-            saveError = result.Error?.Message ?? "Saved successfully.";
+            SaveError = result.Error?.Message ?? "Save failed.";
         }
 
         isSaving = false;
     }
 
-    private void GoBack() => Nav.NavigateTo("/users");
+    private Task GoBack()
+    {
+        Nav.NavigateTo("/users");
+        return Task.CompletedTask;
+    }
 }

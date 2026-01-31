@@ -1,0 +1,35 @@
+﻿@using UserManagement.Application.Common
+
+<TelerikWindow Visible="@Visible"
+               VisibleChanged="@VisibleChanged"
+               Width="420px">
+    <WindowTitle>Confirmation</WindowTitle>
+
+    <WindowContent>
+        Are you sure you want to delete this user?
+        <div style="margin-top:8px;">
+            <b>@User?.UserName</b>
+        </div>
+
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+            <TelerikButton ThemeColor="ThemeColor.Light" OnClick="@OnCancel">
+                Cancel
+            </TelerikButton>
+
+            <TelerikButton ThemeColor="ThemeColor.Error" OnClick="@OnConfirm">
+                Delete
+            </TelerikButton>
+        </div>
+    </WindowContent>
+</TelerikWindow>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter] public UserModel? User { get; set; }
+
+    [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+
+    [Parameter, EditorRequired] public EventCallback OnConfirm { get; set; }
+}

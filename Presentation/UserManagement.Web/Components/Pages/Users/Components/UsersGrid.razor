@@ -1,0 +1,87 @@
+﻿@using UserManagement.Application.Features.Users.Queries.ExportUsersXml
+@using Telerik.DataSource
+@using Telerik.DataSource.Extensions
+@inject IMediator Mediator
+@inject IJSRuntime JS
+
+
+<TelerikButton ThemeColor="ThemeColor.Info"
+               Enabled="@(Items.Count > 0)"
+               OnClick="@ExportXmlAsync">
+    Export XML
+</TelerikButton>
+
+
+<TelerikGrid TItem="UserModel"
+             Data="@Items"
+             Pageable="true"
+             PageSize="8"
+             Sortable="true"
+             Resizable="true"
+             FilterMode="@GridFilterMode.FilterRow"
+             @ref="_grid">
+
+    <GridColumns>
+        <GridColumn Field="@nameof(UserModel.UserName)" Title="Username" />
+        <GridColumn Field="@nameof(UserModel.Email)" Title="Email" />
+        <GridColumn Field="@nameof(UserModel.FullName)" Title="Full Name" />
+        <GridColumn Field="@nameof(UserModel.BirthPlace)" Title="Birth Place" />
+        <GridColumn Field="@nameof(UserModel.City)" Title="City" />
+
+        <GridColumn Title="Actions" Width="220px" Filterable="false" Sortable="false">
+            <Template Context="context">
+                @{
+                    var row = (UserModel)context;
+                }
+                <span style="display:flex; gap:8px; align-items:center;">
+                    <TelerikButton ThemeColor="ThemeColor.Success"
+                                   Size="ButtonSize.Small"
+                                   OnClick="@(async () => await OnEdit.InvokeAsync(row))">
+                        Edit
+                    </TelerikButton>
+
+                    <TelerikButton ThemeColor="ThemeColor.Error"
+                                   Size="ButtonSize.Small"
+                                   OnClick="@(async () => await OnDeleteRequested.InvokeAsync(row))">
+                        Delete
+                    </TelerikButton>
+                </span>
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</TelerikGrid>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<UserModel> Items { get; set; } = Array.Empty<UserModel>();
+    [Parameter, EditorRequired] public EventCallback<UserModel> OnEdit { get; set; }
+    [Parameter, EditorRequired] public EventCallback<UserModel> OnDeleteRequested { get; set; }
+
+    private TelerikGrid<UserModel>? _grid;
+
+    private async Task ExportXmlAsync()
+    {
+        if (_grid is null || Items.Count == 0) 
+            return;
+
+        var state = _grid.GetState();
+
+        var request = new DataSourceRequest
+        {
+            Filters = state.FilterDescriptors?.ToList(),
+            Sorts = state.SortDescriptors?.ToList()
+        };
+
+        var exportDs = Items.AsQueryable().ToDataSourceResult(request);
+        var exportItems = (exportDs.Data as IEnumerable<UserModel>)?.ToList() ?? new List<UserModel>();
+
+        if (exportItems.Count == 0) return;
+
+        var query = exportItems.ToExportUsersXmlQuery();
+        var result = await Mediator.Send(query);
+
+        if (!result.IsSuccess) return;
+
+        var file = result.Value!;
+        await JS.InvokeVoidAsync("downloadFileFromBytes", file.FileName, file.ContentType, file.Content);
+    }
+}
