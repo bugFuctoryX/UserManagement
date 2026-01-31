@@ -1,54 +1,45 @@
-﻿# Projekt áttekintés
+﻿# UserManagement
 
-## Technológia
-- **.NET 10**
-- **C# 14**
+> A Blazor Server (.NET 10) demo / proof-of-concept application showcasing modern user management with clean architecture.
 
-## Architektúra és minták
+---
 
-### Clean Architecture
-**Projekt-referenciák (dependencies):**
-- **Presentation** → Application + Infrastructure  
-- **Infrastructure** → Application + Domain  
-- **Application** → Domain  
-- **Domain** → *(nincs függőség)*
+## 🧭 Overview
 
-### Használt minták
-- **Unit of Work**
-  - `IUnitOfWork` az **Application/Abstractions** rétegben
-  - implementáció az **Infrastructure** rétegben
-- **Mediator pattern** (pl. MediatR)
+**UserManagement** is a Blazor Server–based (**Interactive Server**) .NET 10 application that demonstrates  
+**user authentication, listing, editing, and deletion** using a modern, maintainable architecture.
 
-## API
-- **REST API** – **Minimal APIs**
-- **EF Core Lazy Loading**
+This project is intentionally a **pet project / training app**, built as a **technology reference and showcase**.
 
-## Alkalmazás-szervezés
-- **CQRS** (Command Query Responsibility Segregation)
-  - **Commands / Queries**
-  - **Request / Response** modellek
+### 🎯 Focus areas
+- **Telerik UI for Blazor** – professional UI components
+- **CQRS + MediatR** – clear separation of commands and queries
+- **FluentValidation** – centralized validation pipeline
+- **FileDb (CSV)** – lightweight persistence with audit logging
 
-## Külső könyvtárak
-- **FluentValidation**
-- **FluentResult**
-- **MediatR**
-- **Swagger**
+---
 
-## Authentication és Authorization
-- **JWT Bearer token alapú auth**
-- **Role-based authorization**
-- **Policy-based authorization**
-- **Custom requirement-ek és handler-ek**
-- **Refresh token mechanizmus**
-- **Password hashing** (BCrypt)
-- **Account lockout** (többszöri sikertelen bejelentkezés után)
+## 🧱 Technology stack
 
-## Command 
-dotnet user-secrets set "Jwt:PrivateKeyPem" "-----BEGIN PRIVATE KEY-----\ncf577f21-49e0-4a37-900d-360f9aa7ca79\n-----END PRIVATE KEY-----"
+| Area | Technology |
+|-----|-----------|
+| Framework | **.NET 10** (`net10.0`) |
+| UI | **Blazor Web App (Server / Interactive)** |
+| Architecture | **CQRS + MediatR** |
+| Validation | **FluentValidation** |
+| UI Library | **Telerik UI for Blazor** |
+| Persistence | **FileDb (CSV)** |
 
-### Design pattern kategóriák (GoF vs. enterprise)
-- **GoF (Gang of Four) patternök:** **Mediator** (Behavioral)
-- **Architekturális / enterprise minták:** **Clean Architecture**, **CQRS**, **Unit of Work**
+---
 
-### Common/Behaviors
-MediatR pipeline behavior-ok (MediatR “middleware”). Cross-cutting logika ide kerül, ami minden request előtt/után lefut, pl. validáció, logging, tranzakciókezelés.
+## 🗂️ Project structure
+
+```text
+UserManagement
+├─ Core
+│  ├─ UserManagement.Domain          # Domain entities (User, Profile, Credential, Audit)
+│  └─ UserManagement.Application     # CQRS, use cases, validations, pipeline
+├─ Infrastructure
+│  └─ UserManagement.Infrastructure  # FileDb (CSV), audit, seeding
+└─ Presentation
+   └─ UserManagement.Web             # Blazor UI + Telerik components
