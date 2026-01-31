@@ -1,11 +1,10 @@
-﻿namespace UserManagement.Web.Models
-{
-  internal sealed class LoginModel
-  {
-    [Required]
-    public string UserName { get; set; } = string.Empty;
+﻿namespace UserManagement.Web.Models;
 
-    [Required]
-    public string Password { get; set; } = string.Empty;
-  }
+public sealed record LoginModel
+{
+  [Required]
+  public string UserName { get; set; } = string.Empty;
+
+  [Required]
+  public string Password { get; set; } = string.Empty;
 }

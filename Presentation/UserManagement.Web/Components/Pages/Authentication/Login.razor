@@ -1,86 +1,94 @@
 ﻿@page "/"
 @page "/login"
-@rendermode InteractiveServer
 
-<main class="auth-main">
-    <div class="page-card">
-        <h1 class="page-title">Login</h1>
-        <TelerikForm Model="@loginModel" OnSubmit="@OnSubmit" Class="form-grid">
-            <FormValidation>
-                <DataAnnotationsValidator />
-            </FormValidation>
+<section class="auth-shell">
+    <TelerikCard Class="auth-card">
+        <CardBody>
+            <TelerikStackLayout Orientation="@StackLayoutOrientation.Horizontal" Class="auth-stack">
+                <div class="auth-info">
+                    <TelerikBadge ThemeColor="ThemeColor.Info"></TelerikBadge>
+                    <h1>Welcome back</h1>
+                    <p>Sign in to manage users and keep profiles up to date across your system.</p>
+                    <ul>
+                        <li>Fast access with Telerik UI</li>
+                        <li>Responsive layout for any device</li>
+                        <li>Simple, clear user management</li>
+                    </ul>
+                </div>
 
-            <FormItems>
-                <FormItem LabelText="Username">
-                    <Template>
-                        <TelerikTextBox @bind-Value="loginModel.UserName"
-                                        Placeholder="Username"
-                                        Width="100%" />
-                        <TelerikValidationMessage For="@(() => loginModel.UserName)" />
-                    </Template>
-                </FormItem>
+                <div class="auth-form">
+                    <h2 class="k-h5 mb-3">Login</h2>
 
-                <FormItem LabelText="Password">
-                    <Template>
-                        <TelerikTextBox @bind-Value="loginModel.Password"
-                                        Placeholder="Password"
-                                        Width="100%"
-                                        Password="true" />
-                        <TelerikValidationMessage For="@(() => loginModel.Password)" />
-                    </Template>
-                </FormItem>
-            </FormItems>
-            <FormButtons>
-                <TelerikButton ButtonType="ButtonType.Submit"
-                               ThemeColor="ThemeColor.Primary"
-                               Enabled="@(!isBusy)">
-                    @(isBusy ? "Signing in..." : "Sign in")
-                </TelerikButton>
-            </FormButtons>
-        </TelerikForm>
-    </div>
-</main>
+                    <TelerikForm Model="@loginModel" OnSubmit="@OnSubmit" Class="form-grid">
+                        <FormValidation>
+                            <DataAnnotationsValidator />
+                        </FormValidation>
 
-@if (!string.IsNullOrWhiteSpace(statusMessage))
-{
-    <p class="text-success mt-3">@statusMessage</p>
-}
+                        <FormItems>
+                            <FormItem LabelText="Username">
+                                <Template>
+                                    <TelerikTextBox @bind-Value="loginModel.UserName"
+                                                    Placeholder="Enter username"
+                                                    Width="100%" />
+                                    <TelerikValidationMessage For="@(() => loginModel.UserName)" />
+                                </Template>
+                            </FormItem>
 
-@if (!string.IsNullOrWhiteSpace(errorMessage))
-{
-    <p class="text-danger mt-3">@errorMessage</p>
-}
+                            <FormItem LabelText="Password">
+                                <Template>
+                                    <TelerikTextBox @bind-Value="loginModel.Password"
+                                                    Placeholder="Enter password"
+                                                    Width="100%"
+                                                    Password="true" />
+                                    <TelerikValidationMessage For="@(() => loginModel.Password)" />
+                                </Template>
+                            </FormItem>
+                        </FormItems>
+
+                        <FormButtons>
+                            <TelerikButton ButtonType="ButtonType.Submit"
+                                           ThemeColor="ThemeColor.Primary"
+                                           Enabled="@(!isBusy)">
+                                @(isBusy ? "Signing in..." : "Sign in")
+                            </TelerikButton>
+                        </FormButtons>
+                    </TelerikForm>
+
+                    @if (!string.IsNullOrWhiteSpace(errorMessage))
+                    {
+                        <div class="auth-status text-danger">@errorMessage</div>
+                    }
+                </div>
+            </TelerikStackLayout>
+        </CardBody>
+    </TelerikCard>
+</section>
 
 @code {
     private readonly LoginModel loginModel = new();
-    private string? statusMessage;
     private string? errorMessage;
     private bool isBusy;
 
     [Inject] private IMediator Mediator { get; set; } = default!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
 
     private async Task OnSubmit()
     {
-        statusMessage = null;
         errorMessage = null;
         isBusy = true;
 
-        var result = await Mediator.Send(new LoginCommand(loginModel.UserName, loginModel.Password));
+        var result = await Mediator.Send(loginModel.ToLoginCommand());
 
         if (result.IsSuccess && result.Value is not null)
         {
-            var fullName = $"{result.Value.FirstName} {result.Value.LastName}".Trim();
-            statusMessage = string.IsNullOrWhiteSpace(fullName)
-                ? $"Welcome {result.Value.UserName}"
-                : $"Welcome {fullName}";
-
             loginModel.Password = string.Empty;
-        }
-        else
-        {
-            errorMessage = result.Error?.Message ?? "Login failed. Please try again.";
+            isBusy = false;
+
+            NavigationManager.NavigateTo("/users");
+            return;
         }
 
+        errorMessage = result.Error?.Message ?? "Login failed. Please try again.";
         isBusy = false;
     }
 }

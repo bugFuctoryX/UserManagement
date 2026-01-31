@@ -1,0 +1,163 @@
+﻿@page "/users"
+@using UserManagement.Application.Common
+@using UserManagement.Application.Features.Users.Commands.Delete
+
+<ErrorBoundary @ref="_eb">
+    <ChildContent>
+        <TelerikButton OnClick="@ReloadAsync">Refresh</TelerikButton>
+
+        <TelerikGrid Data="@users"
+                     Pageable="true"
+                     PageSize="8"
+                     Sortable="true"
+                     Resizable="true"
+                     FilterMode="@GridFilterMode.FilterRow">
+            <GridColumns>
+                <GridColumn Field="@nameof(UserModel.UserName)" Title="Username" />
+                <GridColumn Field="@nameof(UserModel.Email)" Title="Email" />
+                <GridColumn Field="@nameof(UserModel.FullName)" Title="Full Name" />
+                <GridColumn Field="@nameof(UserModel.Email)" Title="Email" />
+                <GridColumn Field="@nameof(UserModel.BirthPlace)" Title="Birth Place" />
+                <GridColumn Field="@nameof(UserModel.City)" Title="City" />
+
+                <GridColumn Title="Actions" Width="220px" Filterable="false" Sortable="false">
+                    <Template>
+                        <span style="display:flex; gap:8px; align-items:center;">
+                            <TelerikButton ThemeColor="ThemeColor.Success"
+                                           Size="ButtonSize.Small"
+                                           Icon="@SvgIcon.Pencil"
+                                           OnClick="@(() => GoToDetails((UserModel)context))">
+                            </TelerikButton>
+
+                            <TelerikButton ThemeColor="ThemeColor.Error"
+                                           Size="ButtonSize.Small"
+                                           Icon="@SvgIcon.Trash"
+                                           OnClick="@(() => AskDelete((UserModel)context))">
+                            </TelerikButton>
+                        </span>
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </TelerikGrid>
+
+        <TelerikWindow Visible="@IsDeleteOpen"
+                       VisibleChanged="@OnDeleteWindowVisibleChanged"
+                       Width="420px">
+            <WindowTitle>
+                Megerősítés
+            </WindowTitle>
+
+            <WindowContent>
+                Biztosan törlöd ezt a felhasználót?
+                <div style="margin-top:8px;">
+                    <b>@_pendingDelete?.UserName</b>
+                </div>
+
+                <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+                    <TelerikButton ThemeColor="ThemeColor.Light" OnClick="@CancelDelete">
+                        Mégse
+                    </TelerikButton>
+
+                    <TelerikButton ThemeColor="ThemeColor.Error" OnClick="@ConfirmDeleteAsync">
+                        Törlés
+                    </TelerikButton>
+                </div>
+            </WindowContent>
+        </TelerikWindow>
+
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <div style="color:#c00; margin-top: 12px;">@errorMessage</div>
+        }
+    </ChildContent>
+
+    <ErrorContent Context="ex">
+        <div style="padding:12px;border:1px solid #c00;">
+            <b>Hiba történt:</b> @ex.GetType().Name<br />
+            @ex.Message
+        </div>
+
+        <button @onclick="Recover">Próbáld újra</button>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    private IReadOnlyList<UserModel> users = Array.Empty<UserModel>();
+    private string? errorMessage;
+
+    [Inject] private IMediator Mediator { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private ErrorBoundary? _eb;
+    private void Recover() => _eb?.Recover();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (RendererInfo.IsInteractive)
+        {
+            await LoadUsersAsync();
+        }
+    }
+
+    public async Task ReloadAsync() => await LoadUsersAsync();
+
+    private async Task LoadUsersAsync()
+    {
+        errorMessage = null;
+
+        var result = await Mediator.Send(new GetUsersQuery());
+
+        if (result.IsSuccess && result.Value is not null)
+            users = result.Value.ToUserModels();
+        else
+            errorMessage = result.Error?.Message ?? "Unable to load users.";
+    }
+
+    private void GoToDetails(UserModel model)
+    {
+        var userId = Uri.EscapeDataString(model.UserId.ToString());
+        Nav.NavigateTo($"/users/{userId}");
+    }
+
+    private UserModel? _pendingDelete;
+
+    private bool IsDeleteOpen => _pendingDelete is not null;
+
+    private Task OnDeleteWindowVisibleChanged(bool visible)
+    {
+        if (!visible)
+        {
+            _pendingDelete = null;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void AskDelete(UserModel u)
+    {
+        _pendingDelete = u;
+    }
+
+    private void CancelDelete()
+    {
+        _pendingDelete = null;
+    }
+
+    private async Task ConfirmDeleteAsync()
+    {
+        if (_pendingDelete is null) return;
+
+        var result = await Mediator.Send(new DeleteUserCommand(_pendingDelete.UserId));
+        if (result.IsSuccess && result.Value)
+        {
+            errorMessage = null;
+            users = users.Where(x => x.UserId != _pendingDelete.UserId).ToList();
+        }
+        else
+        {
+            errorMessage = result.Error?.Message ?? "Delete failed.";
+        }
+        _pendingDelete = null;
+        await InvokeAsync(StateHasChanged);
+    }
+}

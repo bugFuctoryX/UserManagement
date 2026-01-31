@@ -8,3 +8,5 @@ global using UserManagement.Application.Features.Authentication.Login;
 global using UserManagement.Application.Abstractions.Authentication;
 global using UserManagement.Application.Mapping;
 global using UserManagement.Application.Common.Behaviors;
+global using UserManagement.Application.Features.Users.Queries.GetAll;
+global using UserManagement.Application.Abstractions.Persistence;

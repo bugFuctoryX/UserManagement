@@ -49,42 +49,97 @@ internal class FileUserRepository(IFileDbContext _context, IFileAuditWriter _aud
   {
     var changedBy = user.Credential?.UserName ?? "system";
 
+    string oldSnapshot = string.Empty;
+    string newSnapshot = user.Snapshot();
+
     await _context.WithWriteLockAsync(async state =>
     {
       var old = await BuildCurrentUserSnapshotOrNull(state, user.Id, ct);
       if (old is null)
         throw new InvalidOperationException("User not found.");
 
-      var profileIdx = state.Users.ToList().FindIndex(x => x.UserId == user.Id);
+      oldSnapshot = old;
+
+      var profileIdx = IndexOfByUserId(state.Users, user.Id);
       if (profileIdx < 0) throw new InvalidOperationException("User profile not found.");
 
       state.Users[profileIdx] = UserMapper.ToProfileRecord(user.Profile);
 
-      var credIdx = state.Credentials.ToList().FindIndex(x => x.UserId == user.Id);
+      var credIdx = IndexOfByUserId(state.Credentials, user.Id);
       if (credIdx < 0) throw new InvalidOperationException("User credentials not found.");
 
-      if(user.Credential is not null)
+      if (user.Credential is not null)
       {
         var newCredRecord = user.Credential.ToCredentialRecord();
         state.Credentials[credIdx] = newCredRecord;
       }
 
-      var auditEntry = new UserAuditEntry
-      {
-        AuditId = Guid.NewGuid(),
-        UserId = user.Id,
-        ChangedAtUtc = DateTime.UtcNow,
-        ChangedByUserName = changedBy,
-        Type = ChangeType.UpdateProfile,
-        OldSnapshotJson = old,
-        NewSnapshotJson = user.Snapshot()
-      };
+      return true;
+   }, ct);
 
-      await _audit.WriteUserAuditAsync(auditEntry, ct);
+   var auditEntry = new UserAuditEntry
+   {
+     AuditId = Guid.NewGuid(),
+     UserId = user.Id,
+     ChangedAtUtc = DateTime.UtcNow,
+     ChangedByUserName = changedBy,
+     Type = ChangeType.UpdateProfile,
+     OldSnapshotJson = oldSnapshot,
+     NewSnapshotJson = newSnapshot
+   };
+
+   await _audit.WriteUserAuditAsync(auditEntry, ct);
+  }
+
+  private static int IndexOfByUserId<T>(IList<T> list, Guid userId) where T : class
+  {
+    for (var i = 0; i < list.Count; i++)
+    {
+      dynamic item = list[i]!;
+      if ((Guid)item.UserId == userId) return i;
+    }
+    return -1;
+  }
+
+  public async Task<bool> DeleteByIdAsync(Guid userId, CancellationToken ct)
+  {
+    if (userId == Guid.Empty) return false;
+
+    string? oldSnapshot = null;
+
+    var deleted = await _context.WithWriteLockAsync(async state =>
+    {
+      oldSnapshot = await BuildCurrentUserSnapshotOrNull(state, userId, ct);
+      if (oldSnapshot is null) return false;
+
+      var userProfile = state.Users.FirstOrDefault(x => x.UserId == userId);
+      var creditional = state.Credentials.FirstOrDefault(x => x.UserId == userId);
+      if (userProfile is null || creditional is null) return false;
+
+      state.Users.Remove(userProfile);
+      state.Credentials.Remove(creditional);
 
       return true;
     }, ct);
+
+    if (!deleted) return false;
+
+    var auditEntry = new UserAuditEntry
+    {
+      AuditId = Guid.NewGuid(),
+      UserId = userId,
+      ChangedAtUtc = DateTime.UtcNow,
+      ChangedByUserName = "system",
+      Type = ChangeType.DeleteUser,
+      OldSnapshotJson = oldSnapshot ?? string.Empty,
+      NewSnapshotJson = string.Empty
+    };
+
+    await _audit.WriteUserAuditAsync(auditEntry, ct);
+
+    return true;
   }
+
 
   private static Task<string?> BuildCurrentUserSnapshotOrNull(FileDbState state, Guid userId, CancellationToken ct)
   {

@@ -5,5 +5,6 @@ public enum ChangeType
   Default = 0,
   UpdateProfile = 1,
   ChangePassword = 2,
-  Create = 3
+  Create = 3,
+  DeleteUser = 4
 }

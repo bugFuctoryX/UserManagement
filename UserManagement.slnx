@@ -3,6 +3,7 @@
     <Project Path="Core/UserManagement.Application/UserManagement.Application.csproj" Id="49c114aa-47c2-4695-8995-0c7294282588" />
     <Project Path="Core/UserManagement.Domain/UserManagement.Domain.csproj" Id="d43b27dc-3a3f-4c12-ace8-34a6a75631b8" />
   </Folder>
+  <Folder Name="/Docs/" />
   <Folder Name="/Infrastructure/">
     <Project Path="Infrastructure/UserManagement.Infrastructure/UserManagement.Infrastructure.csproj" Id="2a77906e-5332-4150-8fa5-849c9ce1f7c3" />
   </Folder>
