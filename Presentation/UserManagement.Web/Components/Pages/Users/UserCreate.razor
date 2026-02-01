@@ -1,0 +1,83 @@
+﻿@page "/users/new"
+@using UserManagement.Application.Features.Users.Commands.Add
+@using UserManagement.Web.Models
+@using UserManagement.Web.Mapper
+
+<h3>New user</h3>
+
+<UserDetailsForm Model="model"
+                 BirthDate="birthDate"
+                 BirthDateChanged="OnBirthDateChanged"
+                 FullName="@FullName"
+                 IsSaving="isSaving"
+                 SaveMessage="@SaveMessage"
+                 SaveError="@SaveError"
+                 ValidationErrors="@validationErrors"
+                 PrimaryButtonText="Create"
+                 OnBack="GoBack"
+                 OnSave="CreateAsync" />
+
+@code {
+    private UserViewModel model = new();
+    private DateTime birthDate = DateTime.Today;
+
+    private bool isSaving;
+    private string? SaveError { get; set; }
+    private string? SaveMessage { get; set; }
+
+    private IReadOnlyDictionary<string, string[]>? validationErrors;
+
+    [Inject] private IMediator Mediator { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private string FullName => $"{model.FirstName} {model.LastName}".Trim();
+
+    private Task OnBirthDateChanged(DateTime value)
+    {
+        birthDate = value;
+        return Task.CompletedTask;
+    }
+
+    private async Task CreateAsync()
+    {
+        isSaving = true;
+        SaveError = null;
+        SaveMessage = null;
+
+        validationErrors = null;
+
+        try
+        {
+            var birthDateOnly = DateOnly.FromDateTime(birthDate);
+            AddUserCommand cmd = model.ToAddUserCommand(birthDateOnly);
+
+            var result = await Mediator.Send(cmd);
+
+            if (result.IsSuccess)
+            {
+                SaveMessage = "Created successfully.";
+                Nav.NavigateTo("/users");
+                return;
+            }
+
+            if (result.Error?.Type == ErrorType.Validation)
+            {
+                validationErrors = result.Error.ValidationErrors;
+                SaveError = "";
+                return;
+            }
+
+            SaveError = result.Error?.Message ?? "Create failed.";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private Task GoBack()
+    {
+        Nav.NavigateTo("/users");
+        return Task.CompletedTask;
+    }
+}

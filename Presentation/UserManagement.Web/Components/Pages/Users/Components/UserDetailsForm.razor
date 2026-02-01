@@ -1,61 +1,83 @@
-﻿@using UserManagement.Web.Models
-
-<div style="max-width:520px;">
+﻿<div style="max-width:520px;">
     <div style="display:grid; grid-template-columns: 1fr; gap:12px;">
+
+        @if (ValidationErrors is not null && ValidationErrors.Count > 0)
+        {
+            <div style="border:1px solid #c00; padding:10px; border-radius:6px;">
+                <b style="color:#c00;">Validation errors:</b>
+                <ul style="margin:6px 0 0 18px;">
+                    @foreach (var kv in ValidationErrors)
+                    {
+                        foreach (var msg in kv.Value)
+                        {
+                            <li>@($"{kv.Key}: {msg}")</li>
+                        }
+                    }
+                </ul>
+            </div>
+        }
 
         <div>
             <label>Username</label>
             <TelerikTextBox @bind-Value="Model.UserName" />
+            @FieldErrors("UserName")
         </div>
 
         <div>
             <label>Email</label>
             <TelerikTextBox @bind-Value="Model.Email" />
+            @FieldErrors("Email")
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
             <div>
                 <label>First name</label>
                 <TelerikTextBox @bind-Value="Model.FirstName" />
+                @FieldErrors("FirstName")
             </div>
 
             <div>
                 <label>Last name</label>
                 <TelerikTextBox @bind-Value="Model.LastName" />
+                @FieldErrors("LastName")
+            </div>
+            <div>
+                <label>Password</label>
+                <TelerikTextBox @bind-Value="Model.Password" />
+                @FieldErrors("Password")
             </div>
         </div>
-
-        <div>
-            <label>Full name</label>
-            <TelerikTextBox Value="@FullName" ReadOnly="true" />
-        </div>
-
         <div>
             <label>Birth date</label>
             <TelerikDatePicker Value="BirthDate"
                                ValueChanged="BirthDateChanged"
                                ValueExpression="@(() => BirthDate)" />
+            @FieldErrors("BirthDate")
         </div>
 
         <div>
             <label>Birth place</label>
             <TelerikTextBox @bind-Value="Model.BirthPlace" />
+            @FieldErrors("BirthPlace")
         </div>
 
         <div>
             <label>City</label>
             <TelerikTextBox @bind-Value="Model.City" />
+            @FieldErrors("City")
         </div>
 
         <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px;">
-            <TelerikButton ThemeColor="ThemeColor.Light" OnClick="OnBack">
+            <TelerikButton ThemeColor="ThemeColor.Light"
+                           OnClick="@(() => OnBack.InvokeAsync())"
+                           Enabled="@(!IsSaving)">
                 Back
             </TelerikButton>
 
             <TelerikButton ThemeColor="ThemeColor.Success"
-                           OnClick="OnSave"
+                           OnClick="@(() => OnSave.InvokeAsync())"
                            Enabled="@(!IsSaving)">
-                @(IsSaving ? "Saving..." : "Update")
+                @(IsSaving ? "Saving..." : PrimaryButtonText)
             </TelerikButton>
         </div>
 
@@ -72,7 +94,7 @@
 </div>
 
 @code {
-    [Parameter, EditorRequired] public UpdateUserModel Model { get; set; } = default!;
+    [Parameter, EditorRequired] public UserViewModel Model { get; set; } = default!;
 
     [Parameter] public DateTime BirthDate { get; set; }
     [Parameter] public EventCallback<DateTime> BirthDateChanged { get; set; }
@@ -81,8 +103,30 @@
 
     [Parameter] public bool IsSaving { get; set; }
     [Parameter] public string? SaveMessage { get; set; }
-    [Parameter] public string? SaveError { get; set; } 
+    [Parameter] public string? SaveError { get; set; }
+
+    [Parameter] public string PrimaryButtonText { get; set; } = "Save";
+
+    [Parameter] public IReadOnlyDictionary<string, string[]>? ValidationErrors { get; set; }
 
     [Parameter, EditorRequired] public EventCallback OnBack { get; set; }
     [Parameter, EditorRequired] public EventCallback OnSave { get; set; }
+
+    private RenderFragment FieldErrors(string field) => builder =>
+    {
+        if (ValidationErrors is null) return;
+        if (!ValidationErrors.TryGetValue(field, out var errors)) return;
+        if (errors is null || errors.Length == 0) return;
+
+        builder.OpenElement(0, "ul");
+        builder.AddAttribute(1, "style", "margin:6px 0 0 18px; color:#c00;");
+        var seq = 2;
+        foreach (var err in errors)
+        {
+            builder.OpenElement(seq++, "li");
+            builder.AddContent(seq++, err);
+            builder.CloseElement();
+        }
+        builder.CloseElement();
+    };
 }

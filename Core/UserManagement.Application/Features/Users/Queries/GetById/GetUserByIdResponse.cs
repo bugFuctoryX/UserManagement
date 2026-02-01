@@ -6,6 +6,7 @@ public sealed record GetUserByIdResponse(
     string Email,
     string FirstName,
     string LastName,
+    string Password,
     DateOnly BirthDate,
     string BirthPlace,
     string City,

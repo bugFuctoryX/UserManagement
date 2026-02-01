@@ -1,6 +1,6 @@
 ﻿namespace UserManagement.Web.Models;
 
-public sealed record UserModel(Guid UserId,
+public sealed record UserGridViewModel(Guid UserId,
   string UserName,
   string Email,
   DateOnly BirthDate, 

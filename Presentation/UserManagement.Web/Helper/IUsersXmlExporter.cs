@@ -2,5 +2,5 @@
 
 public interface IUsersXmlExporter
 {
-  string Export(IEnumerable<UserModel> users);
+  string Export(IEnumerable<UserGridViewModel> users);
 }

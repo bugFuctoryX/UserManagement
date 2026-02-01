@@ -7,5 +7,6 @@
     Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct);
     Task UpdateAsync(User user, CancellationToken ct);
     Task<bool> DeleteByIdAsync(Guid userId, CancellationToken ct);
+    Task<Guid> AddUserAsync(User user, CancellationToken ct);
   }
 }

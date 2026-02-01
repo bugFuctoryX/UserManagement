@@ -2,6 +2,6 @@
 
 public static class LogginMappings
 {
-  public static LoginCommand ToLoginCommand(this LoginModel model)
+  public static LoginCommand ToLoginCommand(this LoginUser model)
           => new(model.UserName, model.Password);
 }

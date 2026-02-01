@@ -9,5 +9,4 @@ public sealed record UpdateUserCommand(Guid UserId,
   DateOnly BirthDate,
   string BirthPlace,
   string City,
-  string FullName
-) : IRequest<Result<UpdateUserResponse>>;
+  string FullName) : IRequest<Result<UpdateUserResponse>>;

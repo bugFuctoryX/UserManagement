@@ -2,10 +2,15 @@
 global using UserManagement.Web.Components;
 global using UserManagement.Web.DependencyInjection;
 global using UserManagement.Application.DependencyInjection;
-global using System.ComponentModel.DataAnnotations;
 global using UserManagement.Application.Features.Users.Queries.GetAll;
 global using UserManagement.Web.Models;
 global using UserManagement.Application.Features.Authentication.Login;
 global using UserManagement.Application.Features.Users.Commands.Update;
 global using UserManagement.Application.Features.Users.Queries.GetById;
 global using UserManagement.Application.Features.Users.Queries.ExportUsersXml;
+global using UserManagement.Web.Services.Authentication;
+global using Microsoft.AspNetCore.Authentication;
+global using Microsoft.AspNetCore.Authentication.Cookies;
+global using System.Security.Claims;
+global using UserManagement.Application.Common;
+global using MediatR;

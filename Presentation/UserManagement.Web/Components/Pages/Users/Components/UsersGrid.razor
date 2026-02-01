@@ -1,18 +1,11 @@
-﻿@using UserManagement.Application.Features.Users.Queries.ExportUsersXml
-@using Telerik.DataSource
-@using Telerik.DataSource.Extensions
-@inject IMediator Mediator
-@inject IJSRuntime JS
-
-
-<TelerikButton ThemeColor="ThemeColor.Info"
+﻿<TelerikButton ThemeColor="ThemeColor.Info"
                Enabled="@(Items.Count > 0)"
                OnClick="@ExportXmlAsync">
     Export XML
 </TelerikButton>
 
 
-<TelerikGrid TItem="UserModel"
+<TelerikGrid TItem="UserGridViewModel"
              Data="@Items"
              Pageable="true"
              PageSize="8"
@@ -22,16 +15,16 @@
              @ref="_grid">
 
     <GridColumns>
-        <GridColumn Field="@nameof(UserModel.UserName)" Title="Username" />
-        <GridColumn Field="@nameof(UserModel.Email)" Title="Email" />
-        <GridColumn Field="@nameof(UserModel.FullName)" Title="Full Name" />
-        <GridColumn Field="@nameof(UserModel.BirthPlace)" Title="Birth Place" />
-        <GridColumn Field="@nameof(UserModel.City)" Title="City" />
+        <GridColumn Field="@nameof(UserGridViewModel.UserName)" Title="Username" />
+        <GridColumn Field="@nameof(UserGridViewModel.Email)" Title="Email" />
+        <GridColumn Field="@nameof(UserGridViewModel.FullName)" Title="Full Name" />
+        <GridColumn Field="@nameof(UserGridViewModel.BirthPlace)" Title="Birth Place" />
+        <GridColumn Field="@nameof(UserGridViewModel.City)" Title="City" />
 
         <GridColumn Title="Actions" Width="220px" Filterable="false" Sortable="false">
             <Template Context="context">
                 @{
-                    var row = (UserModel)context;
+                    var row = (UserGridViewModel)context;
                 }
                 <span style="display:flex; gap:8px; align-items:center;">
                     <TelerikButton ThemeColor="ThemeColor.Success"
@@ -52,11 +45,13 @@
 </TelerikGrid>
 
 @code {
-    [Parameter, EditorRequired] public IReadOnlyList<UserModel> Items { get; set; } = Array.Empty<UserModel>();
-    [Parameter, EditorRequired] public EventCallback<UserModel> OnEdit { get; set; }
-    [Parameter, EditorRequired] public EventCallback<UserModel> OnDeleteRequested { get; set; }
+    [Parameter, EditorRequired] public IReadOnlyList<UserGridViewModel> Items { get; set; } = Array.Empty<UserGridViewModel>();
+    [Parameter, EditorRequired] public EventCallback<UserGridViewModel> OnEdit { get; set; }
+    [Parameter, EditorRequired] public EventCallback<UserGridViewModel> OnDeleteRequested { get; set; }
+    [Inject] private IMediator Mediator { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
-    private TelerikGrid<UserModel>? _grid;
+    private TelerikGrid<UserGridViewModel>? _grid;
 
     private async Task ExportXmlAsync()
     {
@@ -72,7 +67,7 @@
         };
 
         var exportDs = Items.AsQueryable().ToDataSourceResult(request);
-        var exportItems = (exportDs.Data as IEnumerable<UserModel>)?.ToList() ?? new List<UserModel>();
+        var exportItems = (exportDs.Data as IEnumerable<UserGridViewModel>)?.ToList() ?? new List<UserGridViewModel>();
 
         if (exportItems.Count == 0) return;
 

@@ -1,7 +1,36 @@
 ﻿@inherits LayoutComponentBase
 
 <TelerikRootComponent>
+    <div class="topbar">
+        <div class="topbar-left"></div>
+        <div class="topbar-right">
+            <AuthorizeView>
+                <Authorized Context="authState">
+                    <span class="user-chip">
+                        @(authState.User.Identity?.IsAuthenticated == true
+                            ? authState.User.Identity?.Name
+                            : "Anonymous")
+                    </span>
+        
+                    <TelerikButton OnClick="@(() => Nav.NavigateTo("/logout", forceLoad: true))">
+                        Logout
+                    </TelerikButton>
+                </Authorized>
+        
+                <NotAuthorized>
+                    <TelerikButton OnClick="@(() => Nav.NavigateTo("/login", forceLoad: true))">
+                        Login
+                    </TelerikButton>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+
     <main class="app-main">
         @Body
     </main>
 </TelerikRootComponent>
+
+@code {
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+}

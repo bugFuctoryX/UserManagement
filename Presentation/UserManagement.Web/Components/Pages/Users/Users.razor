@@ -4,6 +4,10 @@
     <ChildContent>
         <TelerikButton OnClick="@ReloadAsync" Enabled="@(!isLoading)">Refresh</TelerikButton>
 
+        <TelerikButton ThemeColor="ThemeColor.Primary"
+                       OnClick="@GoToNew">
+            New
+        </TelerikButton>
         <UsersGrid Items="users"
                    OnEdit="GoToDetails"
                    OnDeleteRequested="AskDelete" />
@@ -31,7 +35,7 @@
 </ErrorBoundary>
 
 @code {
-    private IReadOnlyList<UserModel> users = Array.Empty<UserModel>();
+    private IReadOnlyList<UserGridViewModel> users = Array.Empty<UserGridViewModel>();
     private string? errorMessage;
     private bool isLoading;
 
@@ -66,16 +70,16 @@
         isLoading = false;
     }
 
-    private void GoToDetails(UserModel model)
+    private void GoToDetails(UserGridViewModel model)
     {
         var userId = Uri.EscapeDataString(model.UserId.ToString());
         Nav.NavigateTo($"/users/{userId}");
     }
 
-    private UserModel? _pendingDelete;
+    private UserGridViewModel? _pendingDelete;
     private bool IsDeleteOpen => _pendingDelete is not null;
 
-    private void AskDelete(UserModel u) => _pendingDelete = u;
+    private void AskDelete(UserGridViewModel u) => _pendingDelete = u;
     private void CancelDelete() => _pendingDelete = null;
 
     private Task OnDeleteWindowVisibleChanged(bool visible)
@@ -103,5 +107,10 @@
 
         _pendingDelete = null;
         await InvokeAsync(StateHasChanged);
+    }
+
+    private void GoToNew()
+    {
+        Nav.NavigateTo("/users/new");
     }
 }

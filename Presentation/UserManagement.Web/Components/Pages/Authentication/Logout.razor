@@ -1,5 +1,13 @@
-﻿<h3>Component</h3>
+﻿@page "/logout"
+
+<p>Signing out...</p>
 
 @code {
-
+    [Inject] private IWebAuthService WebAuth { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+    protected override async Task OnInitializedAsync()
+    {
+        await WebAuth.SignOutAsync();
+        Nav.NavigateTo("/login", forceLoad: true);
+    }
 }

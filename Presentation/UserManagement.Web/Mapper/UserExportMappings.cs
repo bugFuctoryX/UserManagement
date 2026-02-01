@@ -2,13 +2,13 @@
 
 public static class UserExportMappings
 {
-  public static ExportUsersXmlQuery ToExportUsersXmlQuery(this List<UserModel> users)
+  public static ExportUsersXmlQuery ToExportUsersXmlQuery(this List<UserGridViewModel> users)
   {
     var rows = users.ToExportRows();
     return new ExportUsersXmlQuery(rows);
   }
 
-  public static IReadOnlyList<UserExportRow> ToExportRows(this List<UserModel> users)
+  public static IReadOnlyList<UserExportRow> ToExportRows(this List<UserGridViewModel> users)
   {
     if (users is null || users.Count == 0)
       return Array.Empty<UserExportRow>();

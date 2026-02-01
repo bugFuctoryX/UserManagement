@@ -20,8 +20,4 @@
     <ProjectReference Include="..\UserManagement.Domain\UserManagement.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Users\Commands\Add\" />
-  </ItemGroup>
-
 </Project>

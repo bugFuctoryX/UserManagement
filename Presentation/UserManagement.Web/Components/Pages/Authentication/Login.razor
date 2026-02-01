@@ -19,7 +19,7 @@
                 <div class="auth-form">
                     <h2 class="k-h5 mb-3">Login</h2>
 
-                    <TelerikForm Model="@loginModel" OnSubmit="@OnSubmit" Class="form-grid">
+                    <TelerikForm Model="@loginUser" OnSubmit="@OnSubmit" Class="form-grid">
                         <FormValidation>
                             <DataAnnotationsValidator />
                         </FormValidation>
@@ -27,20 +27,20 @@
                         <FormItems>
                             <FormItem LabelText="Username">
                                 <Template>
-                                    <TelerikTextBox @bind-Value="loginModel.UserName"
+                                    <TelerikTextBox @bind-Value="loginUser.UserName"
                                                     Placeholder="Enter username"
                                                     Width="100%" />
-                                    <TelerikValidationMessage For="@(() => loginModel.UserName)" />
+                                    <TelerikValidationMessage For="@(() => loginUser.UserName)" />
                                 </Template>
                             </FormItem>
 
                             <FormItem LabelText="Password">
                                 <Template>
-                                    <TelerikTextBox @bind-Value="loginModel.Password"
+                                    <TelerikTextBox @bind-Value="loginUser.Password"
                                                     Placeholder="Enter password"
                                                     Width="100%"
                                                     Password="true" />
-                                    <TelerikValidationMessage For="@(() => loginModel.Password)" />
+                                    <TelerikValidationMessage For="@(() => loginUser.Password)" />
                                 </Template>
                             </FormItem>
                         </FormItems>
@@ -65,30 +65,42 @@
 </section>
 
 @code {
-    private readonly LoginModel loginModel = new();
+    private readonly LoginUser loginUser = new();
     private string? errorMessage;
     private bool isBusy;
 
-    [Inject] private IMediator Mediator { get; set; } = default!;
-    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity?.IsAuthenticated == true)
+        {
+            Nav.NavigateTo("/users", forceLoad: true);
+        }
+    }
 
     private async Task OnSubmit()
     {
-        errorMessage = null;
         isBusy = true;
+        errorMessage = null;
 
-        var result = await Mediator.Send(loginModel.ToLoginCommand());
-
-        if (result.IsSuccess && result.Value is not null)
+        try
         {
-            loginModel.Password = string.Empty;
+            await JS.InvokeVoidAsync("postSignIn",
+                "/auth/signin",
+                loginUser.UserName,
+                loginUser.Password,
+                "/users");
+
             isBusy = false;
-
-            NavigationManager.NavigateTo("/users");
-            return;
         }
-
-        errorMessage = result.Error?.Message ?? "Login failed. Please try again.";
-        isBusy = false;
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            isBusy = false;
+        }
     }
 }

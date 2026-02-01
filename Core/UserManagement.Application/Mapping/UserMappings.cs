@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using UserManagement.Application.Features.Users.Commands.Add;
 using UserManagement.Application.Features.Users.Commands.Update;
 using UserManagement.Application.Features.Users.Queries.ExportUsersXml;
 using UserManagement.Application.Features.Users.Queries.ExportUsersXml.Xml;
@@ -50,12 +51,36 @@ public static class UserMappings
     }
   };
 
+  public static User ToUser(this AddUserCommand src, string passwordHash, DateTime utcNow) => new()
+  {
+    Id = src.UserId,
+    Credential = new UserCredential
+    {
+      UserId = src.UserId,
+      UserName = src.UserName,
+      PasswordHash = passwordHash,
+      CreatedAtUtc = utcNow
+    },
+    Profile = new UserProfile
+    {
+      UserId = src.UserId,
+      Email = src.Email,
+      FirstName = src.FirstName,
+      LastName = src.LastName,
+      BirthDate = src.BirthDate,
+      BirthPlace = src.BirthPlace,
+      City = src.City,
+      UpdatedAtUtc = utcNow
+    }
+  };
+
   public static GetUserByIdResponse ToResponse(this User user) => new(
     UserId: user.Id,
     UserName: user.Credential.UserName,
     Email: user.Profile.Email,
     FirstName: user.Profile.FirstName,
     LastName: user.Profile.LastName,
+    Password: user.Credential.PasswordHash,
     BirthDate: user.Profile.BirthDate,
     BirthPlace: user.Profile.BirthPlace,
     City: user.Profile.City,

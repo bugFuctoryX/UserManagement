@@ -2,6 +2,30 @@
     min-height: 100vh;
     background: #f6f7fb;
     padding: 32px 24px;
+    flex: 1;
+}
+
+.app-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.user-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.user-name {
+    font-size: 14px;
+    opacity: 0.9;
 }
 
 .auth-main {

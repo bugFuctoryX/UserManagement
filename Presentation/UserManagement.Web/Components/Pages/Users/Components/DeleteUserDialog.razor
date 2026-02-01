@@ -1,4 +1,4 @@
-﻿@using UserManagement.Application.Common
+﻿
 
 <TelerikWindow Visible="@Visible"
                VisibleChanged="@VisibleChanged"
@@ -26,10 +26,7 @@
 @code {
     [Parameter] public bool Visible { get; set; }
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
-
-    [Parameter] public UserModel? User { get; set; }
-
+    [Parameter] public UserGridViewModel? User { get; set; }
     [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
-
     [Parameter, EditorRequired] public EventCallback OnConfirm { get; set; }
 }

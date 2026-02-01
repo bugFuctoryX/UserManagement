@@ -23,13 +23,13 @@ internal class FileUserRepository(IFileDbContext _context, IFileAuditWriter _aud
     var credentialRecords = await _context.ReadCredentialsAsync(ct);
     var userRecords = await _context.ReadUsersAsync(ct);
 
-    var c = credentialRecords.FirstOrDefault(x => x.UserId == id);
-    if (c is null) return null;
+    var creditialRecord = credentialRecords.FirstOrDefault(x => x.UserId == id);
+    if (creditialRecord is null) return null;
 
     var profileRecord = userRecords.FirstOrDefault(x => x.UserId == id);
     if (profileRecord is null) return null;
 
-    return UserMapper.ToUser(c, profileRecord);
+    return UserMapper.ToUser(creditialRecord, profileRecord);
   }
 
   public async Task<User?> GetByUsernameAsync(string username, CancellationToken ct)
@@ -43,6 +43,43 @@ internal class FileUserRepository(IFileDbContext _context, IFileAuditWriter _aud
     if (profileRecord is null) return null;
 
     return UserMapper.ToUser(credentionalRecord, profileRecord);
+  }
+
+  public async Task<Guid> AddUserAsync(User user, CancellationToken ct)
+  {
+    var changedBy = user.Credential?.UserName ?? "system";
+    string oldSnapshot = string.Empty;
+    string newSnapshot = user.Snapshot();
+    await _context.WithWriteLockAsync(async state =>
+    {
+      if (IndexOfByUserId(state.Users, user.Id) >= 0)
+        throw new InvalidOperationException("User already exists.");
+
+      if (user.Credential is not null && IndexOfByUserId(state.Credentials, user.Id) >= 0)
+        throw new InvalidOperationException("User credentials already exist.");
+
+      state.Users.Add(UserMapper.ToProfileRecord(user.Profile));
+
+      if (user.Credential is not null)
+      {
+        state.Credentials.Add(user.Credential.ToCredentialRecord());
+      }
+
+      return true;
+    }, ct);
+
+    var auditEntry = new UserAuditEntry
+    {
+      AuditId = Guid.NewGuid(),
+      UserId = user.Id,
+      ChangedAtUtc = DateTime.UtcNow,
+      ChangedByUserName = changedBy,
+      Type = ChangeType.UpdateProfile,
+      OldSnapshotJson = oldSnapshot,
+      NewSnapshotJson = newSnapshot
+    };
+
+    return user.Id;
   }
 
   public async Task UpdateAsync(User user, CancellationToken ct)
@@ -139,7 +176,6 @@ internal class FileUserRepository(IFileDbContext _context, IFileAuditWriter _aud
 
     return true;
   }
-
 
   private static Task<string?> BuildCurrentUserSnapshotOrNull(FileDbState state, Guid userId, CancellationToken ct)
   {

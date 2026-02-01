@@ -1,8 +1,4 @@
 ﻿@page "/users/{UserId:guid}"
-@using UserManagement.Application.Features.Users.Queries.GetById
-@using UserManagement.Application.Features.Users.Commands.Update
-@using UserManagement.Web.Models
-@using UserManagement.Web.Mapper
 
 <h3>User details</h3>
 
@@ -30,7 +26,7 @@ else if (model is not null)
 @code {
     [Parameter] public Guid UserId { get; set; }
 
-    private UpdateUserModel? model;
+    private UserViewModel? model;
     private DateTime birthDate;
 
     private bool isLoading = true;
