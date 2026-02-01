@@ -17,6 +17,15 @@ This project is intentionally a **pet project / training app**, built as a **tec
 - **FluentValidation** – centralized validation pipeline
 - **FileDb (CSV)** – lightweight persistence with audit logging
 
+- ### ✨ Recent updates
+- **SignalR-based rendering** via **Interactive Server** render mode.
+- **Authentication** handled through a **JavaScript HTTP endpoint** that manages user cookies.
+
+```razor
+<TelerikRootComponent>
+    <Routes @rendermode="InteractiveServer" />
+</TelerikRootComponent>
+```
 ---
 
 ## 🧱 Technology stack
@@ -43,3 +52,12 @@ UserManagement
 │  └─ UserManagement.Infrastructure  # FileDb (CSV), audit, seeding
 └─ Presentation
    └─ UserManagement.Web             # Blazor UI + Telerik components
+```
+
+---
+
+## 💡 Potential future additions
+- **Role-based authorization (RBAC)** and policy-based access control
+- **Refresh token rotation** and stronger session security practices
+- **Audit trail UI** for browsing historical actions
+- **Multi-language (i18n)** support for user-facing screens
