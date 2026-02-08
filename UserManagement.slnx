@@ -1,12 +1,18 @@
 <Solution>
   <Folder Name="/Core/">
-    <Project Path="Core/UserManagement.Application/UserManagement.Application.csproj" Id="49c114aa-47c2-4695-8995-0c7294282588" />
-    <Project Path="Core/UserManagement.Domain/UserManagement.Domain.csproj" Id="d43b27dc-3a3f-4c12-ace8-34a6a75631b8" />
+    <Project Path="Core/UserManagement.Application/UserManagement.Application.csproj" />
+    <Project Path="Core/UserManagement.Domain/UserManagement.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Docs/">
+    <File Path="README.md" />
   </Folder>
   <Folder Name="/Infrastructure/">
-    <Project Path="Infrastructure/UserManagement.Infrastructure/UserManagement.Infrastructure.csproj" Id="2a77906e-5332-4150-8fa5-849c9ce1f7c3" />
+    <Project Path="Infrastructure/UserManagement.Infrastructure/UserManagement.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/Presentation/">
-    <Project Path="Presentation/UserManagement.Web/UserManagement.Web.csproj" Id="aecf609d-d4ea-4529-bdb3-a0a08dfd5160" />
+    <Project Path="Presentation/UserManagement.Web/UserManagement.Web.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/UserManager.Tests.Integration/UserManager.Tests.Integration.csproj" Id="98857746-0822-41e3-ac43-8c0b9b9497b7" />
   </Folder>
 </Solution>

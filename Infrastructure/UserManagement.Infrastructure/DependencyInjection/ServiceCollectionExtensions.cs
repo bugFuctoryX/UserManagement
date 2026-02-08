@@ -1,4 +1,5 @@
-﻿using UserManagement.Infrastructure.SeedGenerators;
+﻿using Microsoft.Extensions.DependencyInjection;
+using UserManagement.Infrastructure.SeedGenerators;
 
 namespace UserManagement.Infrastructure.DependencyInjection;
 
@@ -24,11 +25,16 @@ public static class ServiceCollectionExtensions
       string MakeAbs(string p)
           => Path.IsPathRooted(p) ? Normalize(p) : Path.Combine(baseDir, Normalize(p));
 
-      o.CredentialsPath = MakeAbs(o.CredentialsPath);
-      o.UsersPath = MakeAbs(o.UsersPath);
-      o.UserAuditPath = MakeAbs(o.UserAuditPath);
-    });
+      if (!string.IsNullOrWhiteSpace(o.CredentialsPath))
+        o.CredentialsPath = MakeAbs(o.CredentialsPath);
 
+      if (!string.IsNullOrWhiteSpace(o.UsersPath))
+        o.UsersPath = MakeAbs(o.UsersPath);
+
+      if (!string.IsNullOrWhiteSpace(o.UserAuditPath))
+        o.UserAuditPath = MakeAbs(o.UserAuditPath);
+    });
+    
     services.AddSingleton(sp => new CredentialsCsvSerializer(sp.GetRequiredService<IOptions<FileDbOptions>>().Value.Delimiter));
     services.AddSingleton(sp => new UsersCsvSerializer(sp.GetRequiredService<IOptions<FileDbOptions>>().Value.Delimiter));
     services.AddSingleton(sp => new AuditCsvSerializer(sp.GetRequiredService<IOptions<FileDbOptions>>().Value.Delimiter));
@@ -40,6 +46,7 @@ public static class ServiceCollectionExtensions
     services.AddScoped<IFileCredentialRepository, FileCredentialRepository>();
     services.AddScoped<ISeedGenerator, SeedGenerator>();
     services.AddHostedService<SeedDataHostedService>();
+
     return services;
   }
 }

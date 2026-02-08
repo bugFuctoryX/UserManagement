@@ -18,7 +18,7 @@ internal class FileCredentialRepository(IFileDbContext _db) : IFileCredentialRep
     var creditionalRecord = creditionalRecords.FirstOrDefault(x =>
         x.UserName.Equals(username, StringComparison.OrdinalIgnoreCase));
 
-    return creditionalRecords is null ? null : creditionalRecord!.ToCredential();
+    return creditionalRecord is null ? null : creditionalRecord!.ToCredential();
   }
 
   public async Task UpdatePasswordHashAsync(Guid userId, string passwordHash, CancellationToken ct)

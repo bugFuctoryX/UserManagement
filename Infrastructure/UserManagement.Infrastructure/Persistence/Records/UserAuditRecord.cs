@@ -1,6 +1,6 @@
 ﻿namespace UserManagement.Infrastructure.Persistence.Records;
 
-internal sealed record class UserAuditRecord(
+public sealed record class UserAuditRecord(
   Guid AuditId,
   Guid UserId,
   DateTime ChangedAtUtc,

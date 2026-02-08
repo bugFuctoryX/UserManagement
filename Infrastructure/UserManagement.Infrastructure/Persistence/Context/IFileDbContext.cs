@@ -1,6 +1,6 @@
 ﻿namespace UserManagement.Infrastructure.Persistence.Context;
 
-internal interface IFileDbContext
+public interface IFileDbContext
 {
   Task<IReadOnlyList<CredentialRecord>> ReadCredentialsAsync(CancellationToken ct);
   Task<IReadOnlyList<UserProfileRecord>> ReadUsersAsync(CancellationToken ct);

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-
-namespace UserManagement.Web.DependencyInjection;
+﻿namespace UserManagement.Web.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
