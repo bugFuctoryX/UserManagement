@@ -52,8 +52,21 @@ UserManagement
 │  └─ UserManagement.Infrastructure  # FileDb (CSV), audit, seeding
 └─ Presentation
    └─ UserManagement.Web             # Blazor UI + Telerik components
+├─ Tests
+│  └─ UserManager.Tests.Integration  # Integration tests (ASP.NET Core hosting)
 ```
 
+---
+
+## ✅ Integration tests
+
+This project includes an **integration test suite** in `Tests/UserManager.Tests.Integration`, built with  
+**xUnit** and **Microsoft.AspNetCore.Mvc.Testing** to validate end-to-end behavior of the Blazor Server app.
+
+**Run tests**
+```bash
+dotnet test Tests/UserManager.Tests.Integration
+```
 ---
 
 ## 💡 Potential future additions
