@@ -24,3 +24,7 @@ global using UserManagement.Infrastructure.Persistence.Options;
 global using UserManager.Tests.Integration.Common.Http;
 global using LoginRequest = UserManager.Tests.Integration.Features.Authentication.Login.Contracts.LoginRequest;
 global using UserManager.Tests.Integration.Features.Authentication.Login.TestData;
+global using UserManager.Tests.Integration.Features.Users.CreateUser.Contracts;
+global using UserManager.Tests.Integration.Features.Authentication.Login;
+global using UserManager.Tests.Integration.Common.Auth;
+global using UserManager.Tests.Integration.Features.Users.CreateUser.TestData;

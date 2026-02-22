@@ -3,12 +3,10 @@
 [Collection(ApiCollection.Name)]
 public class LoginTests
 {
-  private readonly HttpClient _client;
   private readonly LoginApi _api;
 
   public LoginTests(ApiFixture fixture)
   {
-    _client = fixture.Client;
     _api = new LoginApi(fixture.Client);
   }
 
@@ -16,7 +14,7 @@ public class LoginTests
   public async Task SignIn_WithValidCredentials_ReturnsOk_AndSetsCookie()
   {
     // Arrange
-    var content = LoginRequests.ValidAdmin();
+    var content = LoginRequests.Valid();
     // Act
     var response = await _api.SingInAsync(content);
     // Location header

@@ -10,4 +10,20 @@ public static class MultipartContentFactory
       { new StringContent(password), nameof(LoginRequest.Password) }
     };
   }
+
+  public static MultipartFormDataContent BuildCreateUserMultipart(CreateUserRequest createUserRequest)
+  {
+    return new MultipartFormDataContent
+    {
+      { new StringContent(createUserRequest.UserId.ToString()), nameof(CreateUserRequest.UserId) },
+      { new StringContent(createUserRequest.UserName), nameof(CreateUserRequest.UserName) },
+      { new StringContent(createUserRequest.Email), nameof(CreateUserRequest.Email) },
+      { new StringContent(createUserRequest.Password), nameof(CreateUserRequest.Password) },
+      { new StringContent(createUserRequest.FirstName), nameof(CreateUserRequest.FirstName)  },
+      { new StringContent(createUserRequest.LastName), nameof(CreateUserRequest.LastName) },
+      { new StringContent(createUserRequest.BirthDate.ToString("yyyy-MM-dd")), nameof(CreateUserRequest.BirthDate) },
+      { new StringContent(createUserRequest.BirthPlace), nameof(CreateUserRequest.BirthPlace) },
+      { new StringContent(createUserRequest.City), nameof(CreateUserRequest.City) }
+    };
+  }
 }

@@ -9,7 +9,8 @@ internal sealed class FileDbSeeder(IFileDbContext context)
 
     if (credentialRecords.Count > 0 || userRecords.Count > 0)
     {
-      var credentialRecord = credentialRecords.FirstOrDefault(x => x.UserId == SeedUsers.UserId);
+      var credentialRecord = credentialRecords.FirstOrDefault(x => 
+      x.UserId == SeedUsers.TestUserId);
 
       if(credentialRecord is null)
       {
